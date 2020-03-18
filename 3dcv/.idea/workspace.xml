@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6cb5e9ea-a406-4b7a-b57c-4e1a968d27eb" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="JupyterTrust" id="4ffd5944-dc62-4d55-a98c-b60879d60846" />
+  <component name="ProjectId" id="1XcSP09twJBEkGE2BbfFv2aX0L2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6cb5e9ea-a406-4b7a-b57c-4e1a968d27eb" name="Default Changelist" comment="" />
+      <created>1581343861076</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1581343861076</updated>
+      <workItem from="1581343866148" duration="5015000" />
+      <workItem from="1581401879664" duration="11616000" />
+      <workItem from="1581492248824" duration="436000" />
+      <workItem from="1581495801326" duration="105000" />
+      <workItem from="1583217836384" duration="3480000" />
+      <workItem from="1583321604705" duration="1000" />
+      <workItem from="1583321613989" duration="8349000" />
+      <workItem from="1583391798055" duration="418000" />
+      <workItem from="1583415721700" duration="1341000" />
+      <workItem from="1583477645146" duration="1140000" />
+      <workItem from="1583499129857" duration="599000" />
+      <workItem from="1583567111346" duration="189000" />
+      <workItem from="1583943453245" duration="2594000" />
+      <workItem from="1583987135717" duration="842000" />
+      <workItem from="1583988218808" duration="1826000" />
+      <workItem from="1583995893411" duration="5819000" />
+      <workItem from="1584026739290" duration="4793000" />
+      <workItem from="1584079612267" duration="24000" />
+      <workItem from="1584511888894" duration="13395000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="780" y="297" key="FileChooserDialogImpl" timestamp="1584079629497">
+      <screen x="65" y="24" width="1855" height="1056" />
+    </state>
+    <state x="780" y="297" key="FileChooserDialogImpl/65.24.1855.1056@65.24.1855.1056" timestamp="1584079629497" />
+    <state x="486" y="174" key="SettingsEditor" timestamp="1583218419993">
+      <screen x="65" y="24" width="1855" height="1056" />
+    </state>
+    <state x="486" y="174" key="SettingsEditor/65.24.1855.1056@65.24.1855.1056" timestamp="1583218419993" />
+    <state x="755" y="386" key="cloudConfig.SelfSettingsDialog" timestamp="1583324538870">
+      <screen x="65" y="24" width="1855" height="1056" />
+    </state>
+    <state x="755" y="386" key="cloudConfig.SelfSettingsDialog/65.24.1855.1056@65.24.1855.1056" timestamp="1583324538870" />
+    <state x="653" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1584079612555">
+      <screen x="65" y="24" width="1855" height="1056" />
+    </state>
+    <state x="653" y="367" key="com.intellij.ide.util.TipDialog/65.24.1855.1056@65.24.1855.1056" timestamp="1584079612555" />
+  </component>
+</project>
