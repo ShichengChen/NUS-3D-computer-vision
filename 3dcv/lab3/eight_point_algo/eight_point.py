@@ -76,7 +76,6 @@ def compute_essential(data1, data2, K):
     Returns:
         E: Essential matrix
     """
-
     k_=np.linalg.inv(K)
     src=(k_ @ data1).T
     dst=(k_ @ data2).T
@@ -91,6 +90,10 @@ def compute_essential(data1, data2, K):
     ss=S.copy()
     S[0],S[1],S[2]=(ss[0]+ss[1])/2,(ss[0]+ss[1])/2,0
     E=U@np.diag(S)@Vh
+
+    # print(np.abs(np.diag(src @ E @ dst.T)))
+    # print(np.sum(np.abs(np.diag(src @ E @ dst.T))))
+    # print(np.mean(np.abs(np.diag(src @ E @ dst.T))))
     """YOUR CODE STARTS HERE"""
     """YOUR CODE ENDS HERE"""
     return E
@@ -108,30 +111,44 @@ def decompose_e(E, K, data1, data2):
     Returns:
         trans: 3x4 array representing the transformation matrix
     """
-    x1,x2=data1[:,:],data2[:,:]
+    # _, r, t, _ = cv2.recoverPose(E, data1[:2, :].T, data2[:2, :].T, K)
+    # print(r, t)
+
+
+    data1,data2=data1[:,:],data2[:,:]
+    x1,x2=data1[:,1],data2[:,1]
     U, S, Vh = np.linalg.svd(E)
-    if(np.linalg.det(U)<0):U=-U
-    if(np.linalg.det(Vh)<0):Vh=-Vh
     W=np.array([[0,-1,0],[1,0,0],[0,0,1]])
-    r = U@W@Vh
     t=(U[:,-1]).reshape(U.shape[0],1)
-    p2=K@np.concatenate([r,t], axis =1)
-    p1=K@np.concatenate([np.eye(3),np.zeros_like(t)], axis =1)
-    X1=np.linalg.pinv(p1)@x1
-    X2=np.linalg.pinv(p2)@x2
-    if(X1[2]<0).any() or (X2[2]<0).any():r=U@W.T@Vh
-    p1 = K @ np.concatenate([np.eye(3), np.zeros_like(t)], axis=1)
-    p2 = K @ np.concatenate([r, t], axis=1)
-    X1 = np.linalg.pinv(p1) @ x1
-    X2 = np.linalg.pinv(p2) @ x2
-    if(X1[2]<0).any() or (X2[2]<0).any():t=-t
-    #print(r,t)
+    def check(r,t):
+        if(np.linalg.det(r)<0):
+            r=-r
+        p2 = K @ np.concatenate([r, t], axis=1)
+        p1 = K @ np.concatenate([np.eye(3), np.zeros_like(t)], axis=1)
+        A=np.array([x1[0]*p1[2]-p1[0],x1[1]*p1[2]-p1[1],x2[0]*p2[2]-p2[0],x2[1]*p2[2]-p2[1]])
+        U,s,Vh=np.linalg.svd(A)
+        X=Vh[-1, :]
+        X[:3]=X[:3]/X[3]
+        X[3]=1
+        z=X[2]/X[3]
+        trans = np.concatenate([r, t], axis=1)
+        camerapose=np.concatenate([trans,np.array([[0,0,0,1]])],axis=0)
+        return z>0 and (camerapose@X)[2]>0, trans
+
+    bol, trans = check(U @ W @ Vh, t)
+    if (bol): return trans
+    bol, trans = check(U @ W @ Vh, -t)
+    if (bol): return trans
+    bol, trans = check(U @ W.T @ Vh, -t)
+    if (bol): return trans
+    bol,trans= check(U @ W.T @ Vh, t)
+    if(bol):
+        #print(trans)
+        return trans
     """YOUR CODE STARTS HERE"""
-    #_, r, t, _ = cv2.recoverPose(E, data1[:2, :].T, data2[:2, :].T, K)
-    trans = np.concatenate([r, t], axis =1)
+
     """YOUR CODE ENDS HERE"""
-    #print(r, t)
-    return trans
+
 
 
 def compute_fundamental(data1, data2):
