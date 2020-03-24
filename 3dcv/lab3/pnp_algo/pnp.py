@@ -1,3 +1,12 @@
+'''
+Name: Shicheng Chen
+Email: e0534721@u.nus.edu
+Student ID: A0215003A
+
+'''
+
+
+
 import numpy as np
 import cv2
 from sympy.polys import subresultants_qq_zz
@@ -115,24 +124,13 @@ def pnp_algo(K, points2d, points3d):
         t: 3x1 array representing translation of the camera
     """
 
-    # def perspective_projection(xyz_point, camera):
-    #     if xyz_point.ndim == 1:
-    #         uvd_point = np.zeros((3))
-    #         uvd_point[0] = xyz_point[0] * camera.fx / xyz_point[2] + camera.cx
-    #         uvd_point[1] = xyz_point[1] * camera.fy / xyz_point[2] + camera.cy
-    #         uvd_point[2] = xyz_point[2]
-    print("k",K)
-
-
     import sympy as sym
     import itertools
-    n = 5
     n=points2d.shape[0]
     points2d=points2d[:n]
     points3d=points3d[:n]
-    f,cx,cy=K[0,0],K[0,-1],K[1,-1]
+    fx,fy,cx,cy=K[0,0],K[1,1],K[0,-1],K[1,-1]
     dis = np.zeros((n,))
-    #for se in itertools.combinations(np.arange(1,points2d.shape[0]), 2):
     for start in range(n):
         rest=np.arange(n).tolist()
         rest.remove(start)
@@ -141,19 +139,18 @@ def pnp_algo(K, points2d, points3d):
             x1, x2, x3 = sym.symbols('x1, x2, x3')
             se=list(se)
             se=[start]+se
-            print(se)
             d12=np.sum((points3d[se[0],:,:]-points3d[se[1],:,:])**2)
             d23=np.sum((points3d[se[1],:,:]-points3d[se[2],:,:])**2)
             d13=np.sum((points3d[se[0],:,:]-points3d[se[2],:,:])**2)
 
-            u1, v1 = (points2d[se[0], 0, 0]-cx)/f, (points2d[se[0], 0, 1]-cy)/f
+            u1, v1 = (points2d[se[0], 0, 0]-cx)/fx, (points2d[se[0], 0, 1]-cy)/fy
             norm = 1/np.sqrt(u1 * u1 + v1 * v1 + 1)
             j1=np.array([u1*norm,v1*norm,norm])
 
-            u2, v2 = (points2d[se[1], 0, 0]-cx) /f, (points2d[se[1], 0, 1]-cy) / f
+            u2, v2 = (points2d[se[1], 0, 0]-cx) /fx, (points2d[se[1], 0, 1]-cy) / fy
             norm = 1 / np.sqrt(u2 * u2 + v2 * v2 + 1)
             j2 = np.array([u2 * norm, v2 * norm, norm])
-            u3, v3 = (points2d[se[2], 0, 0] - cx) / f, (points2d[se[2], 0, 1]- cy) / f
+            u3, v3 = (points2d[se[2], 0, 0] - cx) / fx, (points2d[se[2], 0, 1]- cy) / fy
             norm = 1 / np.sqrt(u3 * u3 + v3 * v3 + 1)
             j3 = np.array([u3 * norm, v3 * norm, norm])
 
@@ -163,22 +160,13 @@ def pnp_algo(K, points2d, points3d):
         arr=np.array(arr).astype(np.float)
         U, S, Vh = np.linalg.svd(arr)
         t5 = Vh[-1, :]
-        #print(t5)
-        #print([t5[1]/t5[0],t5[2]/t5[1],t5[3]/t5[2],t5[4]/t5[3]])
         dis[start]=np.sqrt(np.mean([t5[1]/t5[0],t5[2]/t5[1],t5[3]/t5[2],t5[4]/t5[3]]))
 
 
     points3dcam=reconstruct_3d(dis,K,np.concatenate([points2d,np.ones([n,1,1])],axis=2))
     points3dcam=points3dcam.T
     r,t=icp(np.squeeze(points3d),np.squeeze(points3dcam))
-    print(r, t)
     """YOUR CODE STARTS HERE"""
-    # _, r, t = cv2.solvePnP(points3d, points2d, K, np.zeros((5,)))
-    # r=cv2.Rodrigues(r)[0]
-    # print(cv2.Rodrigues(r)[0].shape)
-    # print(cv2.Rodrigues(r)[1].shape)
-    # """YOUR CODE ENDS HERE"""
-    # print(r,t)
     return r, t
 
 
