@@ -1,13 +1,9 @@
 """ CS4277/CS5477 Lab 4: Plane Sweep Stereo
 See accompanying Jupyter notebook (lab4.ipynb) for instructions.
 
-Name: <Your Name here>
-Email: <username>@u.nus.edu
-NUSNET ID: e1234567
-
-Name2: <Name of second member, if any>
-Email2: <username>@u.nus.edu
-NUSNET ID2: e1234567
+Name: Shicheng Chen
+Email: e0534721@u.nus.edu
+Student ID: A0215003A
 """
 import json
 import os
@@ -163,8 +159,6 @@ def compute_relative_pose(cam_pose, ref_pose):
     relative_pose[:,:-1]=Ri@Rr.T
     relative_pose[:, -1:]=ti-Ri@Rr.T@tr
 
-
-
     """ YOUR CODE ENDS HERE """
     return relative_pose
 
@@ -182,7 +176,6 @@ def get_plane_sweep_homographies(K, relative_pose, inv_depths):
         homographies (D, 3, 3)
     """
 
-    homographies = None
 
     """ YOUR CODE STARTS HERE """
     r=relative_pose[:,:-1]
@@ -226,19 +219,16 @@ def compute_plane_sweep_volume(images, ref_pose, K, inv_depths, img_hw):
         extras (any type):
           Any additional information you might want to keep for part 4.
     """
-
+    """ YOUR CODE STARTS HERE """
     D = len(inv_depths)
     H, W = img_hw
     N=len(images)
-    MD=64
     ps_volume = np.zeros((D, H, W), dtype=np.float32)
     ps_all = np.zeros([N,H,W,3], dtype=np.float32)
-    ps_ave = np.zeros([N,H,W,3], dtype=np.float32)
     accum_count = np.zeros((D, H, W), dtype=np.uint8)
     mask=np.zeros([N,H,W,3],dtype=np.uint8)
     extras = []
 
-    #relative_pose=np.zeros([N-1,3,4])
     H = np.zeros([N,D,3,3])
 
     def wvar(a, w):
@@ -250,27 +240,15 @@ def compute_plane_sweep_volume(images, ref_pose, K, inv_depths, img_hw):
     for i in range(N):
         relative_pose = compute_relative_pose(images[i].pose_mat, ref_pose)
         H[i] = get_plane_sweep_homographies(K, relative_pose, np.array(inv_depths))
-
+    extras.append(H)
     boraderValue=-1
     for j in range(0,D):
         for i in range(N):
             ps_all[i]=cv2.warpPerspective(images[i].image,np.linalg.inv(H[i][j]),img_hw[::-1],
                                           borderValue=(boraderValue,boraderValue,boraderValue))
-            #kernel = np.ones((5, 5), np.float32) / 25
-            #ps_ave[i] = cv2.filter2D(ps_all[i], -1, kernel)
-            #print(np.sum(ps_all[i]==-1),np.sum(ps_all[i]!=-1))
-            #if(j%MD==0):
-        # cv2.imshow('img', np.clip(ps_all[0],0,1))
-        # cv2.imshow('ref', np.clip(images[4].image,0,1))
-        # cv2.waitKey(1)
-
         mask[:, :, :, :] = (ps_all != boraderValue)
-       # assert (((np.sum(mask,axis=3)==0) | (np.sum(mask,axis=3)==3)).all())
         accum_count[j]=np.sum(mask[:,:,:,0],axis=0)
         ps_volume[j]=np.mean(wvar(ps_all,w=mask),axis=2)
-    cv2.destroyAllWindows()
-    """ YOUR CODE STARTS HERE """
-    
     """ YOUR CODE ENDS HERE """
 
     return ps_volume, accum_count, extras
@@ -288,14 +266,10 @@ def compute_depths(ps_volume, inv_depths):
     Returns:
         inv_depth_image (np.ndarray): inverse-depth estimate (H, W)
     """
-    D,H,W=ps_volume.shape
-    # inv_depth_image = np.zeros(ps_volume.shape[1:], dtype=np.float64)
-    # inv_depths_img=np.repeat(inv_depths.reshape(D,1),H*W,axis=1).reshape(D,H,W)
-    depth=1/inv_depths
     """ YOUR CODE STARTS HERE """
     idx=np.argmin(ps_volume,axis=0)
-    #return idx
     inv_depth_image= inv_depths[idx]
+    
     """ YOUR CODE ENDS HERE """
 
     return inv_depth_image
@@ -319,25 +293,26 @@ def unproject_depth_map(image, inv_depth_image, K, mask=None):
           colors for the points at position xyz[i, :]. Should be in the range
           [0, 1] and have dtype=np.float64.
     """
-    H,W=image.shape[:-1]
-    xx, yy = np.meshgrid(np.arange(W), np.arange(H))
-    coor=np.concatenate([xx.reshape(-1,1),yy.reshape(-1,1)],axis=1)
-    homocoor=np.concatenate([xx.reshape(-1,1),yy.reshape(-1,1),np.ones([H*W,1])],axis=1)
-
-    xyz = np.zeros([H*W, 3], dtype=np.float64)
-    rgb = np.zeros([H*W, 3], dtype=np.float64)  # values should be within (0, 1)
-
-    depth=inv_depth_image[yy.reshape(-1),xx.reshape(-1)]
-    xyz[:, -1]=-depth/(homocoor@np.linalg.inv(K).T)[:,-1]
-    xyz[:, :-1] = (homocoor @ np.linalg.inv(K).T)[:,:-1]
-
-    rgb[:,:] = image[yy.reshape(-1),xx.reshape(-1)]
-
-
-
 
     """ YOUR CODE STARTS HERE """
+    H, W = image.shape[:-1]
+    xx, yy = np.meshgrid(np.arange(W), np.arange(H))
+    homocoor = np.concatenate([xx.reshape(-1, 1), yy.reshape(-1, 1), np.ones([H * W, 1])], axis=1)
 
+    xyz = np.zeros([H * W, 3], dtype=np.float64)
+    rgb = np.zeros([H * W, 3], dtype=np.float64)
+
+    depth = inv_depth_image[yy.reshape(-1), xx.reshape(-1)]
+    xyz[:, -1] = -depth / (homocoor @ np.linalg.inv(K).T)[:, -1]
+    xyz[:, :-1] = (homocoor @ np.linalg.inv(K).T)[:, :-1]
+
+    rgb[:, :] = image[yy.reshape(-1), xx.reshape(-1)]
+
+    if (mask is not None):
+        coormask = mask[yy.reshape(-1), xx.reshape(-1)]
+        coormask = coormask.astype(np.bool)
+        xyz = xyz[coormask]
+        rgb = rgb[coormask]
     """ YOUR CODE ENDS HERE """
 
     return xyz, rgb
@@ -364,11 +339,30 @@ def post_process(ps_volume, inv_depth, accum_count, extras):
           Pixels with values TRUE indicate valid pixels.
     """
 
-    mask = np.ones(ps_volume.shape[1:], dtype=np.bool)
-    inv_depth_filtered = inv_depth.copy()
 
     """ YOUR CODE STARTS HERE """
-    
+    D, H, W = ps_volume.shape
+
+    idx = np.argmin(ps_volume, axis=0)
+    inv_depth_image = inv_depth[idx]
+    accum_count = accum_count.transpose(2, 0, 1).reshape(-1, D)
+    maskaccum = accum_count[np.arange(H * W), idx.reshape(-1)].reshape(H, W)
+
+    idf = (inv_depth_image.copy() / 1.25 * 255).astype(np.uint8) / 255
+
+    idf = cv2.fastNlMeansDenoising(
+        (idf * 255).astype(np.uint8), None, h=35, templateWindowSize=9, searchWindowSize=21) / 255
+    idf = cv2.medianBlur((idf * 255).astype(np.uint8), 9) / 255
+    idf = cv2.GaussianBlur((idf * 255).astype(np.uint8), (9, 9), 0) / 255
+    denoisedepth = idf.copy()
+    confidentdepth = cv2.medianBlur((idf * 255).astype(np.uint8), 31) / 255
+    dif = np.abs(inv_depth_image - denoisedepth) / confidentdepth
+    dif[maskaccum <= 5] = 0
+    median = np.median(dif)
+    dif[dif >= median] = 1
+    dif[dif < median] = 0
+
+    mask = dif.astype(np.bool)
     """ YOUR CODE ENDS HERE """
 
-    return inv_depth_filtered, mask
+    return idf*1.25, mask
